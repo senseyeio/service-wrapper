@@ -1,0 +1,6 @@
+Dockerfile
+README.md
+Makefile
+**/*.sw*
+**/*~
+service-wrapper
