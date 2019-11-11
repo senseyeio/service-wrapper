@@ -19,6 +19,7 @@ import (
 
 const (
 	VAULT_AWS_LOGIN = "/v1/auth/aws/login"
+	CONSUL_BINARY   = "/bin/envconsul"
 )
 
 type VaultAWS struct {
@@ -40,18 +41,6 @@ type config struct {
 	Filename string `envconfig:"VAULT_SERVICE_FILE"`
 	AWSPath  string `envconfig:"AWS_CONTAINER_CREDENTIALS_RELATIVE_URI"`
 }
-
-/*
-type Endpoint url.URL
-func (e *Endpoint) Decode(value string) error {
-	u, err := url.Parse(value)
-	if err != nil {
-		return err
-	}
-	*e = Endpoint(u)
-	return nil
-}
-*/
 
 type Doer interface {
 	Do(*http.Request) (*http.Response, error)
@@ -125,7 +114,6 @@ func doPost(httpc Doer, url string, request, response interface{}) (int, error) 
 	}
 
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(body))
-
 	req.Header.Add("Content-Type", "application/json")
 
 	resp, err := httpc.Do(req)
@@ -161,6 +149,7 @@ func (a *awsAuth) Apply(oldArgs []string, oldEnv []string) ([]string, []string, 
 	}
 
 	url := fmt.Sprintf("%s%s", a.vaultEndpoint, VAULT_AWS_LOGIN)
+
 	var loginResponse vaultResponse
 
 	_, err = doPost(a.httpc, url, &iamRequest, &loginResponse)
@@ -185,7 +174,7 @@ func (a *awsAuth) Apply(oldArgs []string, oldEnv []string) ([]string, []string, 
 	// the alternative is to write out a new service.hcl with the values in
 	// in the file. Most likely to /run and make this a tmpfs
 
-	args := []string{"/bin/envconsul"}
+	args := []string{CONSUL_BINARY}
 	if a.serviceFilename != "" {
 		cf := fmt.Sprintf("-config=%s", a.serviceFilename)
 		args = append(args, cf)
