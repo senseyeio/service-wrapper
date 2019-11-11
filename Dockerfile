@@ -19,6 +19,6 @@ FROM scratch as run
 
 ARG src
 
-COPY --from=src ${src}/service-wrapper /bin/service-wrapper
 COPY --from=src /bin/envconsul /bin/envconsul
+COPY --from=src ${src}/service-wrapper /bin/service-wrapper
 

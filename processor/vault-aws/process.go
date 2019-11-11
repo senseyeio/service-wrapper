@@ -134,14 +134,15 @@ func doPost(httpc Doer, url string, request, response interface{}) (int, error) 
 		return 0, errors.Wrap(err, "Failed Vault AWS Auth login")
 	}
 
-	if resp.StatusCode != http.StatusOK {
-		return resp.StatusCode, fmt.Errorf("Vault returned status code %d", resp.StatusCode)
-	}
+	responseBody, err := ioutil.ReadAll(resp.Body)
 	defer resp.Body.Close()
 
-	responseBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return resp.StatusCode, errors.Wrap(err, "Error reading body response")
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		return resp.StatusCode, fmt.Errorf("Vault returned status code %d body: %s", resp.StatusCode, string(responseBody))
 	}
 
 	err = json.Unmarshal(responseBody, response)
