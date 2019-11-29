@@ -39,7 +39,10 @@ type config struct {
 	Role     string `envconfig:"VAULT_ROLE"`
 	Config   string `envconfig:"VAULT_SERVICE_CONFIG"`
 	Filename string `envconfig:"VAULT_SERVICE_FILE"`
-	AWSPath  string `envconfig:"AWS_CONTAINER_CREDENTIALS_RELATIVE_URI"`
+	// AWS Credentials
+	AWSPath   string `envconfig:"AWS_CONTAINER_CREDENTIALS_RELATIVE_URI"`
+	AWSAccess string `envconfig:"AWS_ACCESS_KEY_ID"`
+	AWSSecret string `envconfig:"AWS_SECRET_ACCESS_KEY"`
 }
 
 type Doer interface {
@@ -73,7 +76,8 @@ func (a *awsAuth) Init(c interface{}) (bool, error) {
 		return false, errors.New("bad config")
 	}
 
-	if cfg.Vault == "" || cfg.AWSPath == "" {
+	validAWSCredentials := cfg.AWSPath != "" || (cfg.AWSAccess != "" && cfg.AWSSecret != "")
+	if cfg.Vault == "" || !validAWSCredentials {
 		return false, nil
 	}
 

@@ -14,7 +14,7 @@ import (
 )
 
 func main() {
-	fmt.Printf("Starting service-wrapper")
+	fmt.Println("Starting service-wrapper")
 	httpc := &http.Client{}
 
 	aws := vaultaws.New(httpc)

@@ -11,6 +11,8 @@ import (
 
 const (
 	testAWSPath       = "/testing/path"
+	testAWSAccess     = "access"
+	testAWSSecret     = "secret"
 	testVaultEndpoint = "http://vault.local:8200"
 	testRole          = "aRole"
 	testClientToken   = "aToken"
@@ -51,10 +53,18 @@ func TestInitConfig(t *testing.T) {
 
 	tests := []testSet{
 		testSet{"no vault", false, false, func(c *config) { c.AWSPath = testAWSPath }},
-		testSet{"no AWSPath", false, false, func(c *config) { c.Vault = testVaultEndpoint }},
+		testSet{"no AWS creds", false, false, func(c *config) { c.Vault = testVaultEndpoint }},
+		testSet{"bad AWS creds (no secret)", false, false, func(c *config) { c.Vault = testVaultEndpoint; c.AWSAccess = testAWSAccess }},
+		testSet{"bad AWS creds (no access)", false, false, func(c *config) { c.Vault = testVaultEndpoint; c.AWSSecret = testAWSSecret }},
 		testSet{"vault invalid", false, true, func(c *config) { c.Vault = "broken:/bad url"; c.AWSPath = testAWSPath; c.Role = testRole }},
 		testSet{"missing role", false, true, func(c *config) { c.Vault = testVaultEndpoint; c.AWSPath = testAWSPath }},
-		testSet{"ok", true, false, func(c *config) { c.Vault = testVaultEndpoint; c.AWSPath = testAWSPath; c.Role = testRole }},
+		testSet{"ok AWS Path", true, false, func(c *config) { c.Vault = testVaultEndpoint; c.AWSPath = testAWSPath; c.Role = testRole }},
+		testSet{"ok AWS Token", true, false, func(c *config) {
+			c.Vault = testVaultEndpoint
+			c.AWSAccess = testAWSAccess
+			c.AWSSecret = testAWSSecret
+			c.Role = testRole
+		}},
 	}
 
 	for _, test := range tests {
